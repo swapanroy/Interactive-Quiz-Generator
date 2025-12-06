@@ -16,9 +16,9 @@ export const generateQuizFromMedia = async (
   }));
 
   const prompt = `
-    Analyze the provided content (book pages, notes, or PDF documents). 
-    1. Identify the main topic and summarize the content briefly.
-    2. Extract key concepts/terms.
+    Analyze the provided content. Note: These images may be specific pages selected from a larger book or document.
+    1. Identify the main topic covered in these specific pages.
+    2. Extract key concepts/terms visible in the text or diagrams.
     3. Generate a ${difficulty} difficulty quiz based ONLY on this content.
     4. Provide 5-8 multiple choice questions.
     5. For each question, provide a clear explanation referencing the content.
