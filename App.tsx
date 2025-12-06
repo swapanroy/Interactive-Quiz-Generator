@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { AppState, ImageFile, QuizData, UserAnswer } from './types';
+import { AppState, MediaFile, QuizData, UserAnswer } from './types';
 import ImageUploader from './components/ImageUploader';
 import QuizTaker from './components/QuizTaker';
 import ResultsView from './components/ResultsView';
-import { generateQuizFromImages } from './services/geminiService';
+import { generateQuizFromMedia } from './services/geminiService';
 import { Sparkles } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -12,15 +12,15 @@ const App: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerateQuiz = async (images: ImageFile[], difficulty: 'easy' | 'medium' | 'hard') => {
+  const handleGenerateQuiz = async (files: MediaFile[], difficulty: 'easy' | 'medium' | 'hard') => {
     try {
       setIsLoading(true);
-      const data = await generateQuizFromImages(images, difficulty);
+      const data = await generateQuizFromMedia(files, difficulty);
       setQuizData(data);
       setAppState(AppState.QUIZ);
     } catch (error) {
       console.error("Failed to generate quiz:", error);
-      alert("Failed to analyze images. Please try again with clearer images.");
+      alert("Failed to analyze content. Please try again with clearer files.");
     } finally {
       setIsLoading(false);
     }

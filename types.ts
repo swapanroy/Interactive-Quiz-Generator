@@ -27,7 +27,7 @@ export enum AppState {
   RESULTS = 'RESULTS'
 }
 
-export interface ImageFile {
+export interface MediaFile {
   id: string;
   data: string; // Base64
   mimeType: string;

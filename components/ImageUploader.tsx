@@ -1,40 +1,41 @@
 import React, { useRef, useState } from 'react';
-import { ImageFile } from '../types';
-import { Camera, Upload, X, BookOpen, AlertCircle, BarChart } from 'lucide-react';
+import { MediaFile } from '../types';
+import { Upload, X, BookOpen, AlertCircle, BarChart, FileText } from 'lucide-react';
 
 interface ImageUploaderProps {
-  onGenerate: (images: ImageFile[], difficulty: 'easy' | 'medium' | 'hard') => void;
+  onGenerate: (files: MediaFile[], difficulty: 'easy' | 'medium' | 'hard') => void;
   isLoading: boolean;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) => {
-  const [images, setImages] = useState<ImageFile[]>([]);
+  const [files, setFiles] = useState<MediaFile[]>([]);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const processFiles = (files: FileList | null) => {
-    if (!files) return;
+  const processFiles = (fileList: FileList | null) => {
+    if (!fileList) return;
     setError(null);
 
-    const newImages: ImageFile[] = [];
+    const newFiles: MediaFile[] = [];
     let processedCount = 0;
 
-    Array.from(files).forEach((file) => {
-      if (!file.type.startsWith('image/')) return;
+    Array.from(fileList).forEach((file) => {
+      // Allow images and PDFs
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') return;
 
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          newImages.push({
+          newFiles.push({
             id: Math.random().toString(36).substring(7),
             data: e.target.result as string,
             mimeType: file.type
           });
         }
         processedCount++;
-        if (processedCount === files.length) {
-          setImages(prev => [...prev, ...newImages]);
+        if (processedCount === fileList.length) {
+          setFiles(prev => [...prev, ...newFiles]);
         }
       };
       reader.readAsDataURL(file);
@@ -46,16 +47,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
     processFiles(e.dataTransfer.files);
   };
 
-  const removeImage = (id: string) => {
-    setImages(prev => prev.filter(img => img.id !== id));
+  const removeFile = (id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
   };
 
   const handleAnalyze = () => {
-    if (images.length === 0) {
-      setError("Please add at least one image.");
+    if (files.length === 0) {
+      setError("Please add at least one image or PDF document.");
       return;
     }
-    onGenerate(images, difficulty);
+    onGenerate(files, difficulty);
   };
 
   return (
@@ -66,13 +67,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
         </div>
         <h1 className="text-3xl font-bold text-slate-900">SnapQuiz AI</h1>
         <p className="text-slate-500 max-w-md mx-auto">
-          Take photos of your textbook or notes. AI will instantly create a study quiz to test your knowledge.
+          Take photos of your textbook or upload PDF notes. AI will instantly create a study quiz to test your knowledge.
         </p>
       </div>
 
       <div 
         className={`border-2 border-dashed rounded-xl p-8 transition-colors ${
-          images.length > 0 ? 'border-indigo-200 bg-indigo-50/50' : 'border-slate-300 hover:border-indigo-400 bg-white'
+          files.length > 0 ? 'border-indigo-200 bg-indigo-50/50' : 'border-slate-300 hover:border-indigo-400 bg-white'
         }`}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
@@ -84,29 +85,36 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
               className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 shadow-sm rounded-lg text-slate-700 hover:bg-slate-50 font-medium transition-all"
             >
               <Upload size={20} />
-              Upload Pages
+              Upload Content
             </button>
             <input 
               type="file" 
               multiple 
-              accept="image/*" 
+              accept="image/*,application/pdf" 
               className="hidden" 
               ref={fileInputRef}
               onChange={(e) => processFiles(e.target.files)}
             />
           </div>
-          <p className="text-sm text-slate-400">or drag and drop images here</p>
+          <p className="text-sm text-slate-400">Drag & drop images or PDFs here</p>
         </div>
       </div>
 
-      {/* Image Preview Grid */}
-      {images.length > 0 && (
+      {/* Media Preview Grid */}
+      {files.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {images.map((img) => (
-            <div key={img.id} className="relative group aspect-[3/4] rounded-lg overflow-hidden border border-slate-200 shadow-sm">
-              <img src={img.data} alt="Upload preview" className="w-full h-full object-cover" />
+          {files.map((file) => (
+            <div key={file.id} className="relative group aspect-[3/4] rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-50">
+              {file.mimeType === 'application/pdf' ? (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-2">
+                  <FileText size={40} className="mb-2 text-indigo-400" />
+                  <span className="text-xs text-center line-clamp-2 w-full">PDF Document</span>
+                </div>
+              ) : (
+                <img src={file.data} alt="Upload preview" className="w-full h-full object-cover" />
+              )}
               <button 
-                onClick={() => removeImage(img.id)}
+                onClick={() => removeFile(file.id)}
                 className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X size={16} />
@@ -148,9 +156,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
 
       <button
         onClick={handleAnalyze}
-        disabled={images.length === 0 || isLoading}
+        disabled={files.length === 0 || isLoading}
         className={`w-full py-4 rounded-xl text-white font-semibold text-lg shadow-lg shadow-indigo-200 transition-all transform active:scale-[0.98] ${
-          images.length === 0 || isLoading
+          files.length === 0 || isLoading
             ? 'bg-slate-300 cursor-not-allowed'
             : 'bg-indigo-600 hover:bg-indigo-700'
         }`}
@@ -164,7 +172,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
             Generating Quiz...
           </span>
         ) : (
-          `Generate Quiz (${images.length} pages)`
+          `Generate Quiz (${files.length} items)`
         )}
       </button>
     </div>
