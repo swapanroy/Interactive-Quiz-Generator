@@ -67,6 +67,7 @@ This is the flagship feature. Using the **Gemini Live API** via WebSockets:
     ```bash
     npm run dev
     ```
+ 5. Direct link: https://aistudio.google.com/apps/drive/17RWZF58FuQFRecLXNYzyzWy9kMk5Z-VY?showAssistant=true&resourceKey=&showPreview=true
 
 5.  **Usage:**
     *   Upload images or a PDF.
