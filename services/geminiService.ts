@@ -24,6 +24,8 @@ export const generateQuizFromMedia = async (
     5. For each question, provide a clear explanation referencing the content.
   `;
 
+  console.log(`[Gemini Request] Sending ${mediaParts.length} image/PDF frames to model...`);
+
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: {
@@ -68,6 +70,15 @@ export const generateQuizFromMedia = async (
       }
     }
   });
+
+  // Log Token Usage
+  if (response.usageMetadata) {
+    console.group("🪙 Gemini API Token Usage");
+    console.log(`Input (Prompt) Tokens: ${response.usageMetadata.promptTokenCount}`);
+    console.log(`Output (Response) Tokens: ${response.usageMetadata.candidatesTokenCount}`);
+    console.log(`Total Token Cost: ${response.usageMetadata.totalTokenCount}`);
+    console.groupEnd();
+  }
 
   if (!response.text) {
     throw new Error("No response from AI");

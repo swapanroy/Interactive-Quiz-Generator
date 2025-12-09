@@ -1,8 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
-
 # Quiz Me: Revolutionizing Active Recall with Gemini 2.5 & Real-time Voice Interaction
 
 ## 1. The Problem: The "Passive Learning" Trap
@@ -78,16 +73,8 @@ This is the flagship feature. Using the **Gemini Live API** via WebSockets:
     *   For PDFs, enter a topic to extract relevant pages.
     *   Click "Start Quiz" for the visual mode.
     *   Or, click the **Microphone Icon** in the bottom right to talk to the Quiz Master!
-      
-#  Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/17RWZF58FuQFRecLXNYzyzWy9kMk5Z-VY
 
 ## 7. Future Improvements
 *   **Spaced Repetition:** Saving user progress to a database to resurface weak questions after 1, 3, and 7 days.
 *   **Multi-Voice Support:** Allowing users to choose different AI personas (e.g., "Strict Professor" vs. "Study Buddy").
 *   **Mobile App:** Wrapping the PWA into a native container for better background audio handling.
-
-

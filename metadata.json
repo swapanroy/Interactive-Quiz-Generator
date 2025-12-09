@@ -2,6 +2,7 @@
   "name": "Interactive Quiz Generator",
   "description": "Turn your textbook pages into interactive quizzes instantly using Gemini AI.",
   "requestFramePermissions": [
-    "camera"
+    "camera",
+    "microphone"
   ]
 }

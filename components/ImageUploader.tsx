@@ -1,15 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { MediaFile } from '../types';
 import { loadPdfDocument, renderPageAsImage, findMostRelevantPages, PDFDocumentProxy } from '../services/pdfService';
-import { Upload, X, BookOpen, AlertCircle, BarChart2, FileText, Search, Layers, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, FileText, Search, Layers, Loader2, Image as ImageIcon, BarChart2, AlertCircle } from 'lucide-react';
 
 interface ImageUploaderProps {
+  files: MediaFile[];
+  onFilesChange: (files: MediaFile[]) => void;
   onGenerate: (files: MediaFile[], difficulty: 'easy' | 'medium' | 'hard') => void;
   isLoading: boolean;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) => {
-  const [files, setFiles] = useState<MediaFile[]>([]);
+const ImageUploader: React.FC<ImageUploaderProps> = ({ files, onFilesChange, onGenerate, isLoading }) => {
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [error, setError] = useState<string | null>(null);
   
@@ -49,7 +50,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
         }
         processedCount++;
         if (processedCount === fileList.length) {
-          setFiles(prev => [...prev, ...newFiles]);
+          onFilesChange([...files, ...newFiles]);
           setActivePdf(null); 
         }
       };
@@ -62,7 +63,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
       setProcessingStatus('Loading PDF document...');
       const doc = await loadPdfDocument(file);
       setActivePdf({ file, doc });
-      setFiles([]); 
+      onFilesChange([]); // Clear existing images when new PDF is loaded
       setPageRange({ start: 1, end: Math.min(10, doc.numPages) });
       setProcessingStatus('');
     } catch (err) {
@@ -116,6 +117,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
         });
       }
 
+      onFilesChange(extractedFiles); // Update parent state with extracted images
       onGenerate(extractedFiles, difficulty);
       setProcessingStatus('');
 
@@ -132,7 +134,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onGenerate, isLoading }) 
   };
 
   const removeFile = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
+    onFilesChange(files.filter(f => f.id !== id));
   };
 
   const handleAnalyze = () => {
